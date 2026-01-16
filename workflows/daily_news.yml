@@ -29,6 +29,5 @@ jobs:
           git config --global user.email "bot@github.com"
           git add news_data.json
           git commit -m "Update news data $(date)" || exit 0
-          # 【最終手段】先拉取最新的變更，如果還是衝突就強制推上去
-          git pull --rebase origin main
+          # 【最終修正】強制推送，解決 rejected fetch first 錯誤
           git push -f origin main
