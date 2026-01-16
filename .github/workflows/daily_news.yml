@@ -23,4 +23,6 @@ jobs:
           git config --global user.email "bot@github.com"
           git add news_data.json
           git commit -m "Update news data $(date)" || exit 0
+          # 新增這行：先抓取雲端的更新，避免衝突
+          git pull --rebase origin main
           git push
