@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # 確保抓取完整歷史
+          fetch-depth: 0 
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -29,6 +29,6 @@ jobs:
           git config --global user.email "bot@github.com"
           git add news_data.json
           git commit -m "Update news data $(date)" || exit 0
-          # 【核心修正】先拉取並合併雲端更新，解決 Rejected 錯誤
+          # 【最終手段】先拉取最新的變更，如果還是衝突就強制推上去
           git pull --rebase origin main
-          git push origin main
+          git push -f origin main
