@@ -2,7 +2,7 @@ name: Daily News Sync
 on:
   schedule:
     - cron: '0 22 * * *' # 每天台灣時間早上 6 點執行
-  workflow_dispatch: # 允許你手動按按鈕執行
+  workflow_dispatch: # 允許手動執行
 
 jobs:
   build:
@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # 抓取完整歷史，解決合併衝突
+          fetch-depth: 0 # 確保抓取完整歷史
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -29,6 +29,6 @@ jobs:
           git config --global user.email "bot@github.com"
           git add news_data.json
           git commit -m "Update news data $(date)" || exit 0
-          # 【關鍵修正】先拉取雲端的更新並合併，解決 rejected 錯誤
+          # 【核心修正】先拉取並合併雲端更新，解決 Rejected 錯誤
           git pull --rebase origin main
           git push origin main
