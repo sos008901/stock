@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股市每日快訊</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <div class="max-w-5xl mx-auto p-4">
+        <header class="text-center py-8">
+            <h1 class="text-3xl font-bold text-blue-800">股市重要新聞</h1>
+            <p class="text-gray-500 mt-2">自動抓取 ‧ 國內外重點分類</p>
+        </header>
+
+        <div class="flex overflow-x-auto space-x-2 mb-6 pb-2 no-scrollbar justify-start md:justify-center" id="filter-buttons">
+            <button onclick="filterByRegion('全部')" class="btn-filter active">全部</button>
+            <button onclick="filterByRegion('國內')" class="btn-filter">國內</button>
+            <button onclick="filterByRegion('國際')" class="btn-filter">國際</button>
+            <div class="border-l border-gray-300 mx-2"></div>
+            <button onclick="filterByCategory('半導體')" class="btn-filter">半導體</button>
+            <button onclick="filterByCategory('科技AI')" class="btn-filter">科技AI</button>
+            <button onclick="filterByCategory('金融')" class="btn-filter">金融</button>
+            <button onclick="filterByCategory('航運')" class="btn-filter">航運</button>
+        </div>
+
+        <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="text-center col-span-full text-gray-400">正在加載今日新聞...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
