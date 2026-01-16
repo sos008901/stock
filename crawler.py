@@ -27,8 +27,6 @@ def get_category(title):
 
 def run_crawler():
     file_path = 'news_data.json'
-    
-    # 讀取舊資料
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             try:
@@ -40,7 +38,6 @@ def run_crawler():
 
     existing_titles = {item['title'] for item in all_news}
     
-    # 抓取新新聞
     for region, url in SOURCES.items():
         feed = feedparser.parse(url)
         for entry in feed.entries:
@@ -53,14 +50,11 @@ def run_crawler():
                     "date": datetime.now().strftime("%Y-%m-%d %H:%M")
                 })
 
-    # 過濾：只保留最近 30 天的新聞
+    # 僅保留最近 30 天新聞
     limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
     all_news = [n for n in all_news if n['date'] >= limit_date]
-
-    # 排序：最新的排在最前面
     all_news.sort(key=lambda x: x['date'], reverse=True)
 
-    # 存檔
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(all_news, f, ensure_ascii=False, indent=2)
 
