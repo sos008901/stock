@@ -1,38 +1,6 @@
-/* 自定義按鈕樣式 */
-.btn-filter {
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    background-color: white;
-    border: 1px solid #d1d5db;
-    transition: all 0.2s;
-    font-size: 0.875rem;
-    font-weight: 500;
-    white-space: nowrap;
-}
-
-.btn-filter.active {
-    background-color: #2563eb;
-    color: white;
-    border-color: #2563eb;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-}
-
-.news-card {
-    background-color: white;
-    padding: 1.5rem;
-    border-radius: 0.75rem;
-    border: 1px solid #f3f4f6;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-    transition: all 0.3s;
-    display: flex;
-    flex-direction: column;
-}
-
-.news-card:hover {
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    transform: translateY(-2px);
-}
-
-/* 隱藏滾動條 */
+.btn-filter { padding: 0.5rem 1rem; border-radius: 9999px; background-color: white; border: 1px solid #d1d5db; transition: all 0.2s; font-size: 0.875rem; font-weight: 500; white-space: nowrap; }
+.btn-filter.active { background-color: #2563eb; color: white; border-color: #2563eb; }
+.news-card { background-color: white; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #f3f4f6; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); display: flex; flex-direction: column; transition: transform 0.2s; }
+.news-card:hover { transform: translateY(-3px); }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
