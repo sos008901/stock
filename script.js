@@ -1,6 +1,5 @@
 let allNewsData = [];
 
-// 動態時鐘
 setInterval(() => {
     document.getElementById('live-clock').innerText = new Date().toLocaleString('zh-TW', { hour12: false });
 }, 1000);
@@ -10,19 +9,28 @@ async function init(isManual = false) {
         const response = await fetch(`./news_data.json?t=${Date.now()}`);
         allNewsData = await response.json();
         renderNews(allNewsData);
-        if(isManual) alert("同步成功！已載入最新 10 天數據。");
-    } catch (e) { console.error(e); }
+        if(isManual) alert("同步成功！");
+    } catch (e) {
+        document.getElementById('news-container').innerHTML = '<div class="col-span-full text-center py-20">尚未發現新聞資料，請確認 Actions 是否執行。</div>';
+    }
+}
+
+function handleSearch() {
+    const term = document.getElementById('news-search').value.toLowerCase();
+    const filtered = allNewsData.filter(n => 
+        n.title.toLowerCase().includes(term) || n.category.toLowerCase().includes(term)
+    );
+    updateBtn('搜尋'); // 移除按鈕 active 狀態
+    renderNews(filtered);
 }
 
 function renderNews(list) {
     const container = document.getElementById('news-container');
     if (!list || list.length === 0) {
-        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">尚未發現符合的新聞報導。</div>';
+        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif text-[#7f8c8d]">查無相關報導。</div>';
         return;
     }
-
     const now = new Date();
-
     container.innerHTML = list.map(n => {
         const newsTime = new Date(n.date.replace(/-/g, '/'));
         const diffMinutes = (now - newsTime) / (1000 * 60);
@@ -47,14 +55,8 @@ function renderNews(list) {
     }).join('');
 }
 
-// 搜尋與篩選功能
-document.getElementById('news-search').addEventListener('input', (e) => {
-    const term = e.target.value.toLowerCase();
-    renderNews(allNewsData.filter(n => n.title.toLowerCase().includes(term) || n.category.toLowerCase().includes(term)));
-});
-
 function filterByRealTime() {
-    updateBtn('即時速報 (30m)');
+    updateBtn('即時速報');
     const now = new Date();
     renderNews(allNewsData.filter(n => {
         const diff = (now - new Date(n.date.replace(/-/g, '/'))) / (1000 * 60);
@@ -63,7 +65,18 @@ function filterByRealTime() {
 }
 
 function filterByRegion(r) { updateBtn(r); renderNews(r === '全部' ? allNewsData : allNewsData.filter(n => n.region === r)); }
-function filterByCategory(c) { updateBtn(c); renderNews(allNewsData.filter(n => n.category.includes(c))); }
-function updateBtn(label) { document.querySelectorAll('.btn-filter').forEach(b => b.classList.toggle('active', b.innerText.includes(label))); }
+function filterByCategory(c) { 
+    updateBtn(c === '個股' ? '個股新聞' : c); 
+    renderNews(allNewsData.filter(n => n.category.includes(c))); 
+}
+
+function updateBtn(label) {
+    document.querySelectorAll('.btn-filter').forEach(b => b.classList.toggle('active', b.innerText.includes(label)));
+}
+
+// 支援輸入時按 Enter 搜尋
+document.getElementById('news-search').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleSearch();
+});
 
 init();
