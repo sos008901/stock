@@ -5,43 +5,41 @@ import requests
 import time
 from datetime import datetime, timedelta, timezone
 
-# 擴充搜尋源，加入多重關鍵字組合以增加抓取量
 SOURCES = {
-    "國內": "https://news.google.com/rss/search?q=台股+股市+產業+財經+投資+-美股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+    "國內": "https://news.google.com/rss/search?q=台股+股市+財經+產業+-美股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
     "國際": "https://news.google.com/rss/search?q=美股+財經+Fed+NVIDIA+科技+-台股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
 }
 
-# 基礎產業分類關鍵字 (作為個股比對不到時的備援)
 BASE_CATEGORY_MAP = {
     "金融": ["銀行", "金控", "聯準會", "Fed", "央行", "金管會", "授信", "房貸"],
-    "科技": ["AI", "輝達", "NVIDIA", "伺服器", "硬碟", "低軌衛星", "半導體", "晶圓"],
-    "航運": ["長榮", "陽明", "萬海", "航運", "貨櫃", "運價"],
-    "能源": ["重電", "綠能", "儲能", "電力", "氫能"],
+    "科技": ["AI", "輝達", "NVIDIA", "伺服器", "硬碟", "低軌衛星", "半導體", "晶圓", "電腦"],
+    "航運": ["長榮", "陽明", "萬海", "航運", "貨櫃", "散裝"],
+    "能源": ["重電", "綠能", "儲能", "電力", "華城", "士電"],
 }
 
 def get_taiwan_stock_list():
-    """從證交所獲取所有上市股票清單"""
     stocks = {}
     try:
-        # 證交所上市股票清單 API (簡易版可用 openapi)
-        url = "https://openapi.twse.com.tw/v1/exchangeReport/BWETU_ALL"
-        res = requests.get(url, timeout=10)
-        data = res.json()
-        for item in data:
-            # item['Code'] 是代號, item['Name'] 是名稱
+        # 優先嘗試證交所 API
+        res = requests.get("https://openapi.twse.com.tw/v1/exchangeReport/BWETU_ALL", timeout=10)
+        for item in res.json():
             stocks[item['Code']] = item['Name']
-            stocks[item['Name']] = item['Name'] # 雙向索引
-    except Exception as e:
-        print(f"無法更新股票清單: {e}")
+            stocks[item['Name']] = item['Name']
+    except:
+        # 備援：若 API 失敗，至少確保大型股能被偵測
+        print("API 獲取失敗，使用備援名單")
+        backup = {"2330":"台積電", "2317":"鴻海", "2454":"聯發科", "2308":"台達電", "2382":"廣達", "2303":"聯電"}
+        for k, v in backup.items():
+            stocks[k] = v
+            stocks[v] = v
     return stocks
 
 def get_category(title, stock_dict):
-    # 1. 優先比對台股名稱與代號
+    # 1. 優先匹配個股
     for key, name in stock_dict.items():
         if key in title:
             return f"個股:{name}"
-    
-    # 2. 次要比對基礎產業分類
+    # 2. 次要匹配產業
     for category, keywords in BASE_CATEGORY_MAP.items():
         if any(word.lower() in title.lower() for word in keywords):
             return category
@@ -56,8 +54,9 @@ def run_crawler():
             except: all_news = []
 
     existing_titles = {item['title'] for item in all_news}
-    stock_dict = get_taiwan_stock_list() # 取得最新台股字典
+    stock_dict = get_taiwan_stock_list()
     new_items = []
+    
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/121.0.0.0'}
 
     for region, url in SOURCES.items():
@@ -67,7 +66,7 @@ def run_crawler():
             for entry in feed.entries:
                 if entry.title not in existing_titles:
                     clean_title = entry.title.split(' - ')[0]
-                    # 解析原始發佈時間
+                    # 解析正確日期
                     if hasattr(entry, 'published_parsed') and entry.published_parsed:
                         dt_utc = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
                         dt_tw = dt_utc.astimezone(timezone(timedelta(hours=8)))
@@ -84,7 +83,7 @@ def run_crawler():
             print(f"抓取失敗: {e}")
 
     all_news.extend(new_items)
-    # 僅保留 10 天資料並排序
+    # 儲存 10 天資料並排序
     limit_date = (datetime.now() - timedelta(days=10)).strftime("%Y-%m-%d")
     all_news = [n for n in all_news if n.get('date', '') >= limit_date]
     all_news.sort(key=lambda x: x['date'], reverse=True)
