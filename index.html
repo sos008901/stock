@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>股市速報｜和風極致</title>
+    <title>股市速報｜和風極致版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
@@ -15,34 +15,39 @@
             <div class="w-12 h-[1px] bg-[#4A6C88] mx-auto mt-4"></div>
         </header>
 
-        <div class="max-w-xl mx-auto mb-10 text-center">
+        <div class="max-w-2xl mx-auto mb-10 text-center">
             <div class="relative mb-4">
-                <input type="text" id="news-search" placeholder="請在此搜尋公司、代號或關鍵字..." 
-                    class="w-full bg-white border-2 border-[#4A6C88] pl-10 pr-4 py-4 rounded-md focus:outline-none shadow-md font-serif text-lg">
+                <input type="text" id="news-search" placeholder="搜尋公司、產業或關鍵字..." 
+                    class="w-full bg-white border-2 border-[#4A6C88] px-10 py-4 rounded shadow-sm focus:outline-none font-serif text-lg">
                 <div class="absolute left-3 top-5 text-[#4A6C88]">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
             </div>
             <button onclick="init(true)" class="text-xs font-serif text-[#4A6C88] border border-[#4A6C88] px-6 py-2 hover:bg-[#4A6C88] hover:text-white transition-all shadow-sm">
-                手動同步最新數據
+                ↺ 手動同步最新數據
             </button>
         </div>
 
         <div class="flex flex-wrap gap-2 justify-center mb-10" id="filter-buttons">
-            <button onclick="filterByRegion('全部')" class="btn-filter active">全部</button>
-            <button onclick="filterByRegion('國內')" class="btn-filter">國內</button>
-            <button onclick="filterByRegion('國際')" class="btn-filter">國際</button>
-            <div class="hidden md:block border-l border-[#e6e2d8] mx-2"></div>
-            <button onclick="filterByCategory('金融')" class="btn-filter">金融</button>
+            <div class="flex gap-2 mr-2 border-r border-[#e6e2d8] pr-4">
+                <button onclick="filterByRegion('全部')" class="btn-filter active">全部</button>
+                <button onclick="filterByRegion('國內')" class="btn-filter">國內</button>
+                <button onclick="filterByRegion('國際')" class="btn-filter">國際</button>
+            </div>
+            <button onclick="filterByCategory('金融實務')" class="btn-filter">金融</button>
             <button onclick="filterByCategory('半導體')" class="btn-filter">半導體</button>
-            <button onclick="filterByCategory('科技AI')" class="btn-filter">科技AI</button>
-            <button onclick="filterByCategory('航運')" class="btn-filter">航運</button>
-            <button onclick="filterByCategory('傳產')" class="btn-filter">傳產</button>
-            <button onclick="filterByCategory('能源')" class="btn-filter">能源</button>
+            <button onclick="filterByCategory('AI/伺服器')" class="btn-filter">AI/伺服器</button>
+            <button onclick="filterByCategory('硬體/零組件')" class="btn-filter">硬體/硬碟</button>
+            <button onclick="filterByCategory('車用/衛星')" class="btn-filter">車用/衛星</button>
+            <button onclick="filterByCategory('航運/物流')" class="btn-filter">航運</button>
+            <button onclick="filterByCategory('傳統產業')" class="btn-filter">傳產</button>
+            <button onclick="filterByCategory('能源/重電')" class="btn-filter">能源/重電</button>
+            <button onclick="filterByCategory('生技醫療')" class="btn-filter">生技</button>
+            <button onclick="filterByCategory('總經/其他')" class="btn-filter">其他</button>
         </div>
 
         <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="col-span-full text-center py-20 font-serif">正在加載今日報導...</div>
+            <div class="col-span-full text-center py-20 font-serif">正在加載日誌...</div>
         </div>
     </div>
     <script src="script.js"></script>
