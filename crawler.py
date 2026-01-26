@@ -4,22 +4,22 @@ import os
 import requests
 from datetime import datetime, timedelta, timezone
 
-# 強化搜尋關鍵字與排除邏輯
+# 搜尋語法強化，確保國內外資訊不交叉
 SOURCES = {
     "國內": "https://news.google.com/rss/search?q=台股+股市+OR+台灣產業+-美股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
     "國際": "https://news.google.com/rss/search?q=美股+財經+Fed+OR+國際經濟+-台股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
 }
 
-# 根據你的興趣與工作背景深度客製化分類
+# 深度產業關鍵字地圖
 CATEGORY_MAP = {
-    "金融實務": ["銀行", "金控", "升息", "降息", "聯準會", "Fed", "央行", "金管會", "授信", "房貸", "數位金融", "貨幣銀行"],
-    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "NVDA", "Intel", "先進製程"],
+    "金融實務": ["銀行", "金控", "升息", "降息", "聯準會", "Fed", "央行", "金管會", "授信", "房貸", "外匯", "票券"],
+    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "NVDA", "Intel", "先進封裝"],
     "AI/伺服器": ["AI", "輝達", "NVIDIA", "伺服器", "廣達", "緯創", "技嘉", "微軟", "ChatGPT", "散熱"],
-    "硬體/零組件": ["硬碟", "存儲", "主機板", "顯示卡", "電腦", "硬體", "Bluetooth", "藍牙", "電源", "PCB"],
-    "車用/衛星": ["電動車", "特斯拉", "Tesla", "車用電子", "低軌衛星", "SpaceX", "鴻海", "電池"],
+    "硬體/零組件": ["硬碟", "存儲", "記憶體", "主機板", "顯示卡", "電腦", "硬體", "Bluetooth", "電源供應器"],
+    "車用/衛星": ["電動車", "特斯拉", "Tesla", "車用電子", "低軌衛星", "SpaceX", "鴻海", "MIH"],
     "航運/物流": ["長榮", "陽明", "萬海", "航運", "貨櫃", "散裝", "運價", "SCFI", "紅海"],
     "傳統產業": ["鋼鐵", "水泥", "塑膠", "紡織", "營建", "塑化", "中鋼", "房市"],
-    "能源/重電": ["電力", "綠能", "儲能", "重電", "氫能", "太陽能", "風電", "中興電"],
+    "能源/重電": ["電力", "綠能", "儲能", "重電", "氫能", "太陽能", "風電", "華城", "士電"],
     "生技醫療": ["新藥", "疫苗", "生技", "醫療器材", "CDMO"]
 }
 
@@ -48,7 +48,7 @@ def run_crawler():
             for entry in feed.entries:
                 if entry.title not in existing_titles:
                     clean_title = entry.title.split(' - ')[0]
-                    # 抓取原始發佈時間並轉為台灣時間 (UTC+8)
+                    # 精準抓取原始發佈時間並轉為台灣時間 (UTC+8)
                     if hasattr(entry, 'published_parsed') and entry.published_parsed:
                         dt_utc = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
                         dt_tw = dt_utc.astimezone(timezone(timedelta(hours=8)))
@@ -57,18 +57,15 @@ def run_crawler():
                         pub_date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
                     new_items.append({
-                        "title": clean_title,
-                        "link": entry.link,
-                        "region": region,
-                        "category": get_category(clean_title),
-                        "date": pub_date
+                        "title": clean_title, "link": entry.link, "region": region,
+                        "category": get_category(clean_title), "date": pub_date
                     })
                     existing_titles.add(entry.title)
         except Exception as e:
             print(f"抓取失敗: {e}")
 
     all_news.extend(new_items)
-    # 保留 30 天並排序
+    # 保留 30 天資料並依照日期排序
     limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
     all_news = [n for n in all_news if n.get('date', '') >= limit_date]
     all_news.sort(key=lambda x: x['date'], reverse=True)
