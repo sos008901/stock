@@ -1,8 +1,8 @@
 name: Update Hourly News
 on:
   schedule:
-    - cron: '0 * * * *'  # 每小時的第 0 分鐘執行一次
-  workflow_dispatch:
+    - cron: '0 * * * *'  # 每小時整點執行一次
+  workflow_dispatch:      # 讓你可以手動從 GitHub 點擊 Run
 permissions:
   contents: write
 jobs:
