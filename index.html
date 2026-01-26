@@ -10,30 +10,35 @@
 </head>
 <body class="p-4 md:p-12">
     <div class="max-w-6xl mx-auto">
-        <header class="text-center mb-6">
-            <p class="text-[#7f8c8d] text-sm mb-1 tracking-[0.3em] font-serif uppercase">Hourly Market Update</p>
-            <h1 class="text-4xl font-bold tracking-wider text-[#2c3e50] font-serif">股市精選新聞</h1>
+        <header class="text-center mb-8">
+            <p class="text-[#7f8c8d] text-sm mb-1 tracking-[0.3em] font-serif uppercase">Daily Financial Report</p>
+            <h1 class="text-4xl font-bold tracking-wider text-[#2c3e50] font-serif">股市精選速報</h1>
             <div class="w-12 h-[1px] bg-[#4A6C88] mx-auto mt-4"></div>
         </header>
 
         <div class="max-w-xl mx-auto mb-10 text-center">
-            <div class="relative mb-4">
-                <input type="text" id="news-search" placeholder="輸入關鍵字..." 
-                    class="w-full bg-white border-2 border-[#4A6C88] pl-10 pr-4 py-3 rounded-md focus:outline-none font-serif text-lg">
-                <div class="absolute left-3 top-4 text-[#4A6C88]">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <div class="relative group mb-4">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-[#4A6C88]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                 </div>
+                <input type="text" id="news-search" placeholder="輸入個股或關鍵字搜尋（如：台積電）..." 
+                    class="w-full bg-[#fdfcf8] border-2 border-[#4A6C88] pl-12 pr-4 py-4 rounded-md focus:outline-none focus:ring-4 focus:ring-[#4A6C88]/10 font-serif text-lg shadow-md transition-all">
             </div>
-            <button onclick="init(true)" class="text-xs font-serif text-[#4A6C88] border border-[#4A6C88] px-4 py-1 hover:bg-[#4A6C88] hover:text-white transition-all">
+            
+            <button onclick="init(true)" class="inline-flex items-center text-xs font-serif text-[#4A6C88] border border-[#4A6C88] px-6 py-2 hover:bg-[#4A6C88] hover:text-white transition-all shadow-sm">
+                <svg class="h-3 w-3 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                 手動同步最新數據
             </button>
         </div>
 
         <div class="flex flex-wrap gap-2 justify-center mb-10" id="filter-buttons">
-            <button onclick="filterByRegion('全部')" class="btn-filter active">全部</button>
-            <button onclick="filterByRegion('國內')" class="btn-filter">國內</button>
-            <button onclick="filterByRegion('國際')" class="btn-filter">國際</button>
-            <div class="w-full h-0 md:w-auto md:h-6 border-r border-[#e6e2d8] mx-2 hidden md:block"></div>
+            <div class="flex gap-2 mr-2 border-r border-[#e6e2d8] pr-4">
+                <button onclick="filterByRegion('全部')" class="btn-filter active">全部</button>
+                <button onclick="filterByRegion('國內')" class="btn-filter">國內</button>
+                <button onclick="filterByRegion('國際')" class="btn-filter">國際</button>
+            </div>
             <button onclick="filterByCategory('金融')" class="btn-filter">金融</button>
             <button onclick="filterByCategory('半導體')" class="btn-filter">半導體</button>
             <button onclick="filterByCategory('科技AI')" class="btn-filter">科技AI</button>
@@ -43,7 +48,7 @@
         </div>
 
         <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="col-span-full text-center py-20 font-serif">載入中...</div>
+            <div class="col-span-full text-center py-20 font-serif animate-pulse">正在調閱最新財經日誌...</div>
         </div>
     </div>
     <script src="script.js"></script>
