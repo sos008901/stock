@@ -10,18 +10,15 @@ async function init() {
 }
 function renderNews(newsList) {
     const container = document.getElementById('news-container');
+    // 如果沒資料，顯示提示而不是留白
+    if (newsList.length === 0) {
+        container.innerHTML = '<p class="text-center col-span-full text-gray-400">目前沒有符合條件的新聞，請稍後再試。</p>';
+        return;
+    }
+    
     container.innerHTML = newsList.map(news => `
         <div class="news-card">
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-[10px] px-2 py-1 rounded-md bg-blue-50 text-blue-600 font-bold uppercase">${news.category}</span>
-                <span class="text-xs text-gray-400">${news.date.split(' ')[0]}</span>
             </div>
-            <h3 class="font-bold text-lg mb-4 leading-tight">${news.title}</h3>
-            <div class="flex justify-between items-center mt-auto">
-                <span class="text-xs font-medium ${news.region === '國內' ? 'text-green-600' : 'text-purple-600'}">${news.region}</span>
-                <a href="${news.link}" target="_blank" class="text-blue-600 text-sm font-bold">原文 →</a>
-            </div>
-        </div>
     `).join('');
 }
 function filterByRegion(region) {
