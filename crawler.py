@@ -4,19 +4,19 @@ import os
 import requests
 from datetime import datetime, timedelta
 
-# Google News 來源穩定性較高
+# 優化搜尋語法：使用 - 限定範圍，減少交叉
 SOURCES = {
-    "國內": "https://news.google.com/rss/search?q=台股+股市+金管會&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
-    "國際": "https://news.google.com/rss/search?q=美股+財經+Fed&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
+    "國內": "https://news.google.com/rss/search?q=台股+股市+OR+台灣產業+-美股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+    "國際": "https://news.google.com/rss/search?q=美股+財經+Fed+OR+國際經濟+-台股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
 }
 
-# 根據你的專業與興趣優化關鍵字
 CATEGORY_MAP = {
-    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "NVDA"],
-    "科技AI": ["AI", "輝達", "NVIDIA", "伺服器", "蘋果", "硬碟", "低軌衛星"],
-    "金融": ["升息", "降息", "銀行", "金控", "壽險", "聯準會", "Fed", "央行", "金管會", "授信"],
-    "航運": ["長榮", "陽明", "萬海", "航運", "散裝"],
-    "能源": ["電力", "綠能", "儲能", "重電"]
+    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "NVDA", "Intel"],
+    "科技AI": ["AI", "輝達", "NVIDIA", "伺服器", "蘋果", "硬碟", "低軌衛星", "微軟", "鴻海"],
+    "航運": ["長榮", "陽明", "萬海", "航運", "貨櫃", "散裝"],
+    "金融": ["升息", "降息", "銀行", "金控", "壽險", "聯準會", "Fed", "通膨", "央行", "金管會"],
+    "傳產": ["鋼鐵", "水泥", "塑膠", "紡織", "營建", "塑化", "中鋼"],
+    "能源": ["電力", "綠能", "儲能", "重電", "氫能", "光電"]
 }
 
 def get_category(title):
@@ -40,15 +40,17 @@ def run_crawler():
 
     for region, url in SOURCES.items():
         try:
-            response = requests.get(url, headers=headers, timeout=15)
+            response = requests.get(url, headers=headers, timeout=20)
             feed = feedparser.parse(response.content)
+            print(f"[{region}] 找到 {len(feed.entries)} 則原始訊息")
+            
             for entry in feed.entries:
                 if entry.title not in existing_titles:
                     clean_title = entry.title.split(' - ')[0]
                     new_items.append({
                         "title": clean_title,
                         "link": entry.link,
-                        "region": region,
+                        "region": region,  # 嚴格依照來源分配地區
                         "category": get_category(clean_title),
                         "date": datetime.now().strftime("%Y-%m-%d %H:%M")
                     })
@@ -56,14 +58,16 @@ def run_crawler():
         except Exception as e:
             print(f"抓取 {region} 失敗: {e}")
 
-    # 若抓到新新聞才更新，避免清空檔案
     if new_items:
         all_news.extend(new_items)
+        # 保留 30 天資料
         limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         all_news = [n for n in all_news if n.get('date', '') >= limit_date]
         all_news.sort(key=lambda x: x['date'], reverse=True)
+        
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(all_news, f, ensure_ascii=False, indent=2)
+        print(f"成功更新！本次新增 {len(new_items)} 筆新聞。")
 
 if __name__ == "__main__":
     run_crawler()
