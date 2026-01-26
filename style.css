@@ -1,8 +1,11 @@
 :root {
-    --bg-color: #f4f1ea; --card-bg: #ffffff;
-    --text-primary: #2c3e50; --text-secondary: #7f8c8d;
-    --accent-indigo: #4A6C88; --accent-bamboo: #7C9473;
-    --border-color: #e6e2d8;
+    --bg-color: #f4f1ea;        /* 和紙米色 */
+    --card-bg: #ffffff;         /* 純白 */
+    --text-primary: #2c3e50;    /* 深墨色 */
+    --text-secondary: #7f8c8d;  /* 亞麻灰 */
+    --accent-indigo: #4A6C88;   /* 藍染 */
+    --accent-bamboo: #7C9473;   /* 若竹綠 */
+    --border-color: #e6e2d8;    /* 淺邊框 */
 }
 
 body {
@@ -13,34 +16,96 @@ body {
 
 h1, h2, h3, .font-serif { font-family: 'Noto Serif TC', serif; }
 
+/* 搜尋框樣式 */
+#news-search {
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+}
+
+/* 篩選按鈕 */
 .btn-filter {
-    padding: 0.5rem 1rem; border: 1px solid var(--border-color);
-    background: transparent; color: var(--text-secondary);
-    font-size: 0.85rem; letter-spacing: 0.05em; transition: 0.3s;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    transition: all 0.3s ease;
     border-radius: 2px;
 }
 
-.btn-filter:hover { border-color: var(--accent-indigo); color: var(--accent-indigo); }
-.btn-filter.active { background: var(--accent-indigo); color: white; border-color: var(--accent-indigo); }
+.btn-filter:hover {
+    border-color: var(--accent-indigo);
+    color: var(--accent-indigo);
+}
 
+.btn-filter.active {
+    background: var(--accent-indigo);
+    color: white;
+    border-color: var(--accent-indigo);
+}
+
+/* 新聞卡片 */
 .news-card {
-    background: var(--card-bg); padding: 1.5rem; border: 1px solid var(--border-color);
-    display: flex; flex-direction: column; transition: 0.4s; position: relative;
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: 0.4s ease;
+    position: relative;
 }
 
-.news-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-
-.category-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; background: #f0f4f8; color: var(--accent-indigo); font-weight: 600; }
-
-.news-card h3 { 
-    font-size: 1.2rem; line-height: 1.6; margin: 1rem 0; 
-    height: 3.2em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.04);
 }
 
-.news-card-footer { margin-top: auto; padding-top: 1rem; border-top: 1px dotted var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+.category-tag {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: #f0f4f8;
+    color: var(--accent-indigo);
+    font-weight: 600;
+}
 
-.region-tag::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 8px; }
+.news-card h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.6;
+    margin: 1rem 0;
+    height: 3.2em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.news-card-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px dotted var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 地區標籤樣式 */
+.region-tag::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
 .region-domestic::before { background: var(--accent-bamboo); }
 .region-international::before { background: #9e8c6c; }
 
-.read-link { font-family: 'Noto Serif TC', serif; color: var(--accent-indigo); font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+.read-link {
+    font-family: 'Noto Serif TC', serif;
+    color: var(--accent-indigo);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+}
