@@ -2,12 +2,11 @@ import feedparser
 import json
 import os
 import requests
-import time
 from datetime import datetime, timedelta
 
-# 強制區隔地區，並排除不相關關鍵字
+# 強制區隔地區
 SOURCES = {
-    "國內": "https://news.google.com/rss/search?q=台股+股市+OR+台灣產業+-美股+-Nasdaq&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+    "國內": "https://news.google.com/rss/search?q=台股+股市+OR+台灣產業+-美股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
     "國際": "https://news.google.com/rss/search?q=美股+財經+Fed+OR+國際經濟+-台股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
 }
 
@@ -39,33 +38,22 @@ def run_crawler():
     new_items = []
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/121.0.0.0'}
 
+    # 紀錄抓取時的當下時間
+    fetch_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+
     for region, url in SOURCES.items():
         try:
             response = requests.get(url, headers=headers, timeout=20)
             feed = feedparser.parse(response.content)
-            
             for entry in feed.entries:
                 if entry.title not in existing_titles:
                     clean_title = entry.title.split(' - ')[0]
-                    
-                    # --- 關鍵修正：精準抓取原始發布時間 ---
-                    # Google News RSS 通常提供 published_parsed (struct_time)
-                    if hasattr(entry, 'published_parsed') and entry.published_parsed:
-                        # 將 struct_time 轉換為 datetime
-                        dt = datetime.fromtimestamp(time.mktime(entry.published_parsed))
-                        # 轉換為台灣時間 (Google RSS 通常是 UTC，這裡簡單加 8 小時或維持格式)
-                        # 為避免時區錯亂，我們直接存成標準 ISO 格式
-                        pub_date = dt.strftime("%Y-%m-%d %H:%M")
-                    else:
-                        # 備援方案：嘗試解析字串格式
-                        pub_date = entry.get('published', datetime.now().strftime("%Y-%m-%d %H:%M"))
-
                     new_items.append({
                         "title": clean_title,
                         "link": entry.link,
                         "region": region,
                         "category": get_category(clean_title),
-                        "date": pub_date
+                        "date": fetch_time # 統一使用抓取當下的時間
                     })
                     existing_titles.add(entry.title)
         except Exception as e:
@@ -73,12 +61,9 @@ def run_crawler():
 
     if new_items or all_news:
         all_news.extend(new_items)
-        # 僅保留最近 30 天
         limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         all_news = [n for n in all_news if n.get('date', '') >= limit_date]
-        # 依照新聞發布時間排序 (最關鍵)
         all_news.sort(key=lambda x: x['date'], reverse=True)
-        
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(all_news, f, ensure_ascii=False, indent=2)
 
