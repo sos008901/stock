@@ -1,15 +1,16 @@
 import feedparser
 import json
 import os
+import requests
 from datetime import datetime, timedelta
 
-# 更換為較穩定的 Yahoo 股市 RSS 來源
+# 穩定的 Yahoo 股市 RSS 來源
 SOURCES = {
     "國內": "https://tw.stock.yahoo.com/rss/tw-stock",
     "國際": "https://tw.stock.yahoo.com/rss/intl-stock"
 }
 
-# 根據你的興趣與工作背景調整的關鍵字分類
+# 關鍵字分類邏輯
 CATEGORY_MAP = {
     "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "英特爾"],
     "科技AI": ["AI", "輝達", "NVIDIA", "伺服器", "蘋果", "微軟", "手機", "低軌衛星", "科技", "硬碟"],
@@ -29,57 +30,58 @@ def run_crawler():
     file_path = 'news_data.json'
     all_news = []
     
-    # 讀取舊資料
+    # 讀取現有資料
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             try:
                 all_news = json.load(f)
-                print(f"成功載入舊有資料，共 {len(all_news)} 筆")
+                print(f"目前存檔中有 {len(all_news)} 筆舊新聞")
             except:
-                print("舊資料格式錯誤或為空，重新建立")
                 all_news = []
 
     existing_titles = {item['title'] for item in all_news}
     new_items_count = 0
     
+    # 偽裝成一般的 Chrome 瀏覽器標頭
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    }
+
     for region, url in SOURCES.items():
-        print(f"--- 正在爬取 {region} 新聞 ({url}) ---")
-        feed = feedparser.parse(url)
-        
-        # 偵錯：如果 feed 抓不到資料
-        if not feed.entries:
-            print(f"警告：{region} 來源未抓到任何內容，請檢查網址或網路環境。")
-            continue
+        print(f"--- 正在嘗試抓取 {region} 新聞 ---")
+        try:
+            # 使用 requests 先獲取內容，解決 GitHub Actions 被擋的問題
+            response = requests.get(url, headers=headers, timeout=15)
+            response.raise_for_status() # 如果狀態碼不是 200 會報錯
             
-        print(f"發現 {len(feed.entries)} 則新聞")
-        
-        for entry in feed.entries:
-            if entry.title not in existing_titles:
-                category = get_category(entry.title)
-                all_news.append({
-                    "title": entry.title,
-                    "link": entry.link,
-                    "region": region,
-                    "category": category,
-                    "date": datetime.now().strftime("%Y-%m-%d %H:%M")
-                })
-                existing_titles.add(entry.title)
-                new_items_count += 1
-                # 可以在 Log 看到分類細節
-                print(f"  [新增] ({category}) {entry.title[:30]}...")
+            feed = feedparser.parse(response.content)
+            print(f"成功連結！該來源共有 {len(feed.entries)} 則新聞")
+            
+            for entry in feed.entries:
+                if entry.title not in existing_titles:
+                    all_news.append({
+                        "title": entry.title,
+                        "link": entry.link,
+                        "region": region,
+                        "category": get_category(entry.title),
+                        "date": datetime.now().strftime("%Y-%m-%d %H:%M")
+                    })
+                    existing_titles.add(entry.title)
+                    new_items_count += 1
+                    print(f"  [新進新聞] {entry.title[:30]}...")
+        except Exception as e:
+            print(f"抓取 {region} 時發生錯誤: {e}")
 
-    print(f"--- 爬取結束，本次新增 {new_items_count} 則新聞 ---")
+    print(f"--- 抓取結束，本次新增 {new_items_count} 則新聞 ---")
 
-    # 僅保留最近 30 天新聞
+    # 僅保留最近 30 天，並按日期排序
     limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
     all_news = [n for n in all_news if n['date'] >= limit_date]
-    
-    # 按照日期排序
     all_news.sort(key=lambda x: x['date'], reverse=True)
 
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(all_news, f, ensure_ascii=False, indent=2)
-    print(f"資料已寫入 {file_path}，總計存檔 {len(all_news)} 筆新聞。")
+    print(f"成功寫入 news_data.json，目前總資料筆數：{len(all_news)}")
 
 if __name__ == "__main__":
     run_crawler()
