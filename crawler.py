@@ -4,18 +4,17 @@ import os
 import requests
 from datetime import datetime, timedelta
 
-# 備用多個 RSS 來源，確保一定能抓到東西
+# 改用 Google 新聞 RSS (針對「台股」與「美股」關鍵字搜尋)
 SOURCES = {
-    "國內": "https://tw.stock.yahoo.com/rss/tw-stock",
-    "國際": "https://tw.stock.yahoo.com/rss/intl-stock"
+    "國內": "https://news.google.com/rss/search?q=台股+股市&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+    "國際": "https://news.google.com/rss/search?q=美股+財經&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
 }
 
-# 根據你的興趣與工作背景優化的分類
 CATEGORY_MAP = {
-    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "英特爾"],
+    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "英特爾", "NVDA"],
     "科技AI": ["AI", "輝達", "NVIDIA", "伺服器", "蘋果", "微軟", "手機", "低軌衛星", "科技", "硬碟"],
     "航運": ["長榮", "陽明", "萬海", "航運", "貨櫃", "散裝"],
-    "金融": ["升息", "降息", "銀行", "金控", "壽險", "聯準會", "Fed", "通膨", "央行", "金管會", "授信", "房貸"],
+    "金融": ["升息", "降息", "銀行", "金控", "壽險", "聯準會", "Fed", "通膨", "央行", "金管會"],
     "傳產": ["鋼鐵", "水泥", "塑膠", "紡織", "營建"],
     "能源": ["電力", "綠能", "儲能", "重電", "氫能"]
 }
@@ -30,12 +29,11 @@ def run_crawler():
     file_path = 'news_data.json'
     all_news = []
     
-    # 1. 讀取現有資料
+    # 讀取現有資料
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             try:
                 all_news = json.load(f)
-                print(f"目前存檔中有 {len(all_news)} 筆新聞")
             except:
                 all_news = []
 
@@ -43,52 +41,49 @@ def run_crawler():
     new_items_count = 0
     
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'Accept': 'application/rss+xml,application/xml;q=0.9'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
     }
 
-    # 2. 開始抓取
+    fetched_this_time = []
+
     for region, url in SOURCES.items():
-        print(f"--- 正在抓取 {region} ---")
+        print(f"--- 正在嘗試從 Google News 抓取 {region} ---")
         try:
-            # 嘗試使用 requests 抓取
-            response = requests.get(url, headers=headers, timeout=20)
-            if response.status_code == 200:
-                feed = feedparser.parse(response.content)
-            else:
-                # 如果被擋，嘗試直接抓
-                print(f"Requests 被擋 (Status: {response.status_code})，嘗試直接抓取...")
-                feed = feedparser.parse(url)
+            response = requests.get(url, headers=headers, timeout=15)
+            feed = feedparser.parse(response.content)
             
-            print(f"成功連結！找到 {len(feed.entries)} 則原始訊息")
+            print(f"成功連線，找到 {len(feed.entries)} 則新聞")
             
             for entry in feed.entries:
                 if entry.title not in existing_titles:
-                    all_news.append({
-                        "title": entry.title,
+                    # Google News 的標題通常會帶有來源，例如 "標題 - 自由時報"
+                    clean_title = entry.title.split(' - ')[0]
+                    fetched_this_time.append({
+                        "title": clean_title,
                         "link": entry.link,
                         "region": region,
-                        "category": get_category(entry.title),
+                        "category": get_category(clean_title),
                         "date": datetime.now().strftime("%Y-%m-%d %H:%M")
                     })
                     existing_titles.add(entry.title)
                     new_items_count += 1
         except Exception as e:
-            print(f"抓取失敗: {e}")
+            print(f"抓取 {region} 失敗: {e}")
 
-    # 3. 資料清理
-    # 僅保留最近 30 天
-    limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-    all_news = [n for n in all_news if n.get('date', '') >= limit_date]
-    all_news.sort(key=lambda x: x['date'], reverse=True)
+    # 如果完全沒抓到新東西，不要清空舊檔案
+    if new_items_count == 0 and len(all_news) > 0:
+        print("本次未抓到新新聞，保留舊資料。")
+    else:
+        all_news.extend(fetched_this_time)
+        
+        # 僅保留最近 30 天
+        limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+        all_news = [n for n in all_news if n['date'] >= limit_date]
+        all_news.sort(key=lambda x: x['date'], reverse=True)
 
-    # 4. 寫入檔案
-    if len(all_news) > 0:
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(all_news, f, ensure_ascii=False, indent=2)
-        print(f"成功更新！本次新增 {new_items_count} 筆，總計 {len(all_news)} 筆。")
-    else:
-        print("警告：最終資料為空，未寫入檔案以避免覆蓋舊資料。")
+        print(f"更新完成！總計 {len(all_news)} 筆資料")
 
 if __name__ == "__main__":
     run_crawler()
