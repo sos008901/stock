@@ -8,18 +8,18 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body class="p-4 md:p-12">
     <div class="max-w-6xl mx-auto">
         <header class="text-center mb-16">
-            <p class="text-[#7f8c8d] text-sm mb-2 tracking-[0.3em] font-serif uppercase">Market Insights</p>
+            <p class="text-[#7f8c8d] text-sm mb-2 tracking-[0.3em] font-serif uppercase">Daily Market Review</p>
             <h1 class="text-4xl font-bold tracking-wider text-[#2c3e50] font-serif">每日財經・產業速報</h1>
             <div class="w-12 h-[1px] bg-[#4A6C88] mx-auto mt-6"></div>
         </header>
 
         <div class="flex flex-wrap gap-3 justify-center mb-12" id="filter-buttons">
-            <div class="flex gap-2 mr-4 border-r border-[#e6e2d8] pr-4">
+            <div class="flex gap-2 mr-2 border-r border-[#e6e2d8] pr-4">
                 <button onclick="filterByRegion('全部')" class="btn-filter active">全部</button>
                 <button onclick="filterByRegion('國內')" class="btn-filter">國內</button>
                 <button onclick="filterByRegion('國際')" class="btn-filter">國際</button>
@@ -34,9 +34,7 @@
         </div>
 
         <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="col-span-full text-center py-20">
-                <p class="text-[#7f8c8d] font-serif animate-pulse">正在加載最新報導...</p>
-            </div>
+            <div class="col-span-full text-center py-20 text-[#7f8c8d] font-serif">正在加載報導...</div>
         </div>
     </div>
     <script src="script.js"></script>
