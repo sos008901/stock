@@ -18,14 +18,19 @@
             <div class="w-12 h-[1px] bg-[#4A6C88] mx-auto mt-6"></div>
         </header>
 
-        <div class="flex flex-wrap gap-4 justify-center mb-12" id="filter-buttons">
-            <button onclick="filterByRegion('全部')" class="btn-filter active">全部記事</button>
-            <button onclick="filterByRegion('國內')" class="btn-filter">國內新聞</button>
-            <button onclick="filterByRegion('國際')" class="btn-filter">國際財經</button>
-            <div class="hidden md:block border-l border-[#e6e2d8] mx-2"></div>
-            <button onclick="filterByCategory('金融')" class="btn-filter">金融市場</button>
+        <div class="flex flex-wrap gap-3 justify-center mb-12" id="filter-buttons">
+            <div class="flex gap-2 mr-4 border-r border-[#e6e2d8] pr-4">
+                <button onclick="filterByRegion('全部')" class="btn-filter active">全部</button>
+                <button onclick="filterByRegion('國內')" class="btn-filter">國內</button>
+                <button onclick="filterByRegion('國際')" class="btn-filter">國際</button>
+            </div>
+            <button onclick="filterByCategory('金融')" class="btn-filter">金融</button>
             <button onclick="filterByCategory('半導體')" class="btn-filter">半導體</button>
             <button onclick="filterByCategory('科技AI')" class="btn-filter">科技AI</button>
+            <button onclick="filterByCategory('航運')" class="btn-filter">航運</button>
+            <button onclick="filterByCategory('傳產')" class="btn-filter">傳產</button>
+            <button onclick="filterByCategory('能源')" class="btn-filter">能源</button>
+            <button onclick="filterByCategory('總經/其他')" class="btn-filter">其他</button>
         </div>
 
         <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
