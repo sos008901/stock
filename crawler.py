@@ -4,17 +4,19 @@ import os
 import requests
 from datetime import datetime, timedelta
 
+# Google News 來源穩定性較高
 SOURCES = {
-    "國內": "https://news.google.com/rss/search?q=台股+股市&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
-    "國際": "https://news.google.com/rss/search?q=美股+財經&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
+    "國內": "https://news.google.com/rss/search?q=台股+股市+金管會&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+    "國際": "https://news.google.com/rss/search?q=美股+財經+Fed&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
 }
 
+# 根據你的專業與興趣優化關鍵字
 CATEGORY_MAP = {
-    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "英特爾"],
-    "科技AI": ["AI", "輝達", "NVIDIA", "伺服器", "蘋果", "微軟", "手機", "科技", "硬碟"],
-    "金融": ["升息", "降息", "銀行", "金控", "壽險", "聯準會", "Fed", "通膨", "央行", "金管會"],
-    "航運": ["長榮", "陽明", "萬海", "航運", "貨櫃", "散裝"],
-    "能源": ["電力", "綠能", "儲能", "重電", "氫能"]
+    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "NVDA"],
+    "科技AI": ["AI", "輝達", "NVIDIA", "伺服器", "蘋果", "硬碟", "低軌衛星"],
+    "金融": ["升息", "降息", "銀行", "金控", "壽險", "聯準會", "Fed", "央行", "金管會", "授信"],
+    "航運": ["長榮", "陽明", "萬海", "航運", "散裝"],
+    "能源": ["電力", "綠能", "儲能", "重電"]
 }
 
 def get_category(title):
@@ -29,15 +31,12 @@ def run_crawler():
     
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
-            try:
-                all_news = json.load(f)
-            except:
-                all_news = []
+            try: all_news = json.load(f)
+            except: all_news = []
 
     existing_titles = {item['title'] for item in all_news}
     new_items = []
-    
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0'}
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/121.0.0.0'}
 
     for region, url in SOURCES.items():
         try:
@@ -57,16 +56,14 @@ def run_crawler():
         except Exception as e:
             print(f"抓取 {region} 失敗: {e}")
 
-    # 合併並保留最近 30 天
-    all_news.extend(new_items)
-    limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-    all_news = [n for n in all_news if n.get('date', '') >= limit_date]
-    all_news.sort(key=lambda x: x['date'], reverse=True)
-
-    # 存檔
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(all_news, f, ensure_ascii=False, indent=2)
-    print(f"成功！目前總計 {len(all_news)} 筆新聞。")
+    # 若抓到新新聞才更新，避免清空檔案
+    if new_items:
+        all_news.extend(new_items)
+        limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+        all_news = [n for n in all_news if n.get('date', '') >= limit_date]
+        all_news.sort(key=lambda x: x['date'], reverse=True)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(all_news, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
     run_crawler()
