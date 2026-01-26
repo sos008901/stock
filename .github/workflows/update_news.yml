@@ -1,8 +1,8 @@
-name: Hourly Update News
+name: Hourly Stock News
 on:
   schedule:
-    - cron: '0 * * * *'  # 每小時整點執行
-  workflow_dispatch:      # 讓你可以手動點擊 GitHub 上的 Run workflow
+    - cron: '0 * * * *'  # 每小時執行一次
+  workflow_dispatch:      # 支援手動點擊 GitHub 的 Run
 permissions:
   contents: write
 jobs:
