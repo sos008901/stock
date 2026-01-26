@@ -10,19 +10,20 @@ async function init(isManual = false) {
         const response = await fetch(`./news_data.json?t=${Date.now()}`);
         allNewsData = await response.json();
         renderNews(allNewsData);
-        if(isManual) alert("同步成功！");
+        if(isManual) alert("同步成功！已載入最新 10 天數據。");
     } catch (e) { console.error(e); }
 }
 
 function renderNews(list) {
     const container = document.getElementById('news-container');
     if (!list || list.length === 0) {
-        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">查無相符資料。</div>';
+        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">尚未發現符合的新聞報導。</div>';
         return;
     }
+
     const now = new Date();
+
     container.innerHTML = list.map(n => {
-        // 修正日期解析相容性並計算分鐘差
         const newsTime = new Date(n.date.replace(/-/g, '/'));
         const diffMinutes = (now - newsTime) / (1000 * 60);
         const isNew = diffMinutes <= 30 && diffMinutes >= 0;
@@ -30,7 +31,7 @@ function renderNews(list) {
         return `
             <div class="news-card">
                 <div class="flex justify-between items-start mb-4">
-                    <div class="flex gap-2">
+                    <div class="flex flex-wrap gap-2">
                         <span class="category-tag">${n.category}</span>
                         ${isNew ? '<span class="bg-[#e74c3c] text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse">即時</span>' : ''}
                     </div>
@@ -46,6 +47,12 @@ function renderNews(list) {
     }).join('');
 }
 
+// 搜尋與篩選功能
+document.getElementById('news-search').addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    renderNews(allNewsData.filter(n => n.title.toLowerCase().includes(term) || n.category.toLowerCase().includes(term)));
+});
+
 function filterByRealTime() {
     updateBtn('即時速報 (30m)');
     const now = new Date();
@@ -56,12 +63,7 @@ function filterByRealTime() {
 }
 
 function filterByRegion(r) { updateBtn(r); renderNews(r === '全部' ? allNewsData : allNewsData.filter(n => n.region === r)); }
-function filterByCategory(c) { updateBtn(c); renderNews(allNewsData.filter(n => n.category === c)); }
+function filterByCategory(c) { updateBtn(c); renderNews(allNewsData.filter(n => n.category.includes(c))); }
 function updateBtn(label) { document.querySelectorAll('.btn-filter').forEach(b => b.classList.toggle('active', b.innerText.includes(label))); }
-
-document.getElementById('news-search').addEventListener('input', (e) => {
-    const term = e.target.value.toLowerCase();
-    renderNews(allNewsData.filter(n => n.title.toLowerCase().includes(term) || n.category.toLowerCase().includes(term)));
-});
 
 init();
