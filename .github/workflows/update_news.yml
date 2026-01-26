@@ -1,7 +1,7 @@
-name: Update Stock News
+name: Update Hourly News
 on:
   schedule:
-    - cron: '0 */4 * * *'
+    - cron: '0 * * * *'  # 每小時的第 0 分鐘執行一次
   workflow_dispatch:
 permissions:
   contents: write
@@ -19,5 +19,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add news_data.json
-          git commit -m "Auto-update" || exit 0
+          git commit -m "Hourly Auto-update" || exit 0
           git push
