@@ -2,19 +2,20 @@ import feedparser
 import json
 import os
 import requests
+import time
 from datetime import datetime, timedelta, timezone
 
-# 搜尋語法區隔國內外
 SOURCES = {
     "國內": "https://news.google.com/rss/search?q=台股+股市+OR+台灣產業+-美股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
     "國際": "https://news.google.com/rss/search?q=美股+財經+Fed+OR+國際經濟+-台股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
 }
 
+# 根據你的興趣與工作背景優化關鍵字
 CATEGORY_MAP = {
     "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "NVDA", "Intel"],
     "科技AI": ["AI", "輝達", "NVIDIA", "伺服器", "蘋果", "硬碟", "低軌衛星", "微軟", "鴻海"],
-    "航運": ["長榮", "陽明", "萬海", "航運", "貨櫃", "散裝", "運價"],
-    "金融": ["升息", "降息", "銀行", "金控", "壽險", "聯準會", "Fed", "通膨", "央行", "金管會", "授信"],
+    "航運": ["長榮", "陽明", "萬海", "航運", "貨櫃", "運價"],
+    "金融": ["升息", "降息", "銀行", "金控", "壽險", "聯準會", "Fed", "通膨", "央行", "金管會"],
     "傳產": ["鋼鐵", "水泥", "塑膠", "紡織", "營建", "房貸"],
     "能源": ["電力", "綠能", "儲能", "重電", "氫能", "光電"]
 }
@@ -31,10 +32,8 @@ def run_crawler():
     
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
-            try:
-                all_news = json.load(f)
-            except:
-                all_news = []
+            try: all_news = json.load(f)
+            except: all_news = []
 
     existing_titles = {item['title'] for item in all_news}
     new_items = []
@@ -48,14 +47,15 @@ def run_crawler():
                 if entry.title not in existing_titles:
                     clean_title = entry.title.split(' - ')[0]
                     
-                    # --- 抓取原始發佈時間並轉為台灣時間 ---
+                    # --- 精準解析原始發布時間 ---
                     if hasattr(entry, 'published_parsed') and entry.published_parsed:
-                        # Google News 預設是 UTC
+                        # 轉為 UTC datetime
                         dt_utc = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
                         # 轉為台灣時間 (UTC+8)
                         dt_tw = dt_utc.astimezone(timezone(timedelta(hours=8)))
                         pub_date = dt_tw.strftime("%Y-%m-%d %H:%M")
                     else:
+                        # 真的抓不到才用當下時間 (機率極低)
                         pub_date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
                     new_items.append({
@@ -69,8 +69,8 @@ def run_crawler():
         except Exception as e:
             print(f"抓取 {region} 失敗: {e}")
 
-    # 合併並保留 30 天資料
     all_news.extend(new_items)
+    # 保留 30 天並按日期排序
     limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
     all_news = [n for n in all_news if n.get('date', '') >= limit_date]
     all_news.sort(key=lambda x: x['date'], reverse=True)
