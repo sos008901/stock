@@ -1,8 +1,8 @@
-name: Hourly Update
+name: Update 30min News
 on:
   schedule:
-    - cron: '0 * * * *'  # 每小時整點執行
-  workflow_dispatch:      # 支援手動觸發
+    - cron: '*/30 * * * *'  # 每 30 分鐘執行一次
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
@@ -19,5 +19,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add news_data.json
-          git commit -m "Hourly Auto-update" || exit 0
+          git commit -m "Auto-update News" || exit 0
           git push
