@@ -1,26 +1,20 @@
 let allNewsData = [];
 
-// 支援手動觸發重新載入
 async function init(isManual = false) {
-    const container = document.getElementById('news-container');
-    if(isManual) {
-        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">正在與伺服器同步中...</div>';
-    }
-
     try {
         const response = await fetch(`./news_data.json?t=${Date.now()}`);
         allNewsData = await response.json();
         renderNews(allNewsData);
-        if(isManual) console.log("資料同步成功");
+        if(isManual) alert("已獲取伺服器最新資料");
     } catch (e) {
-        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">資料讀取異常。</div>';
+        console.error(e);
     }
 }
 
 function renderNews(list) {
     const container = document.getElementById('news-container');
     if (!list || list.length === 0) {
-        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif text-[#7f8c8d]">未搜尋到匹配的新聞報導。</div>';
+        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">目前沒有相符的報導。</div>';
         return;
     }
 
@@ -42,29 +36,22 @@ function renderNews(list) {
 // 搜尋連動
 document.getElementById('news-search').addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
-    const filtered = allNewsData.filter(n => 
-        n.title.toLowerCase().includes(term) || 
-        n.category.toLowerCase().includes(term)
-    );
+    const filtered = allNewsData.filter(n => n.title.toLowerCase().includes(term));
     renderNews(filtered);
 });
 
 function filterByRegion(r) {
     updateBtn(r);
-    const filtered = r === '全部' ? allNewsData : allNewsData.filter(n => n.region === r);
-    renderNews(filtered);
+    renderNews(r === '全部' ? allNewsData : allNewsData.filter(n => n.region === r));
 }
 
 function filterByCategory(c) {
     updateBtn(c);
-    const filtered = allNewsData.filter(n => n.category === c);
-    renderNews(filtered);
+    renderNews(allNewsData.filter(n => n.category === c));
 }
 
 function updateBtn(label) {
-    document.querySelectorAll('.btn-filter').forEach(b => {
-        b.classList.toggle('active', b.innerText === label);
-    });
+    document.querySelectorAll('.btn-filter').forEach(b => b.classList.toggle('active', b.innerText === label));
 }
 
 init();
