@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>股市速報｜全自動偵測版</title>
+    <title>股市速報｜台股全自動版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
@@ -19,20 +19,16 @@
         <div class="max-w-2xl mx-auto mb-10">
             <div class="flex gap-2">
                 <div class="relative flex-1">
-                    <input type="text" id="news-search" placeholder="輸入代號、名稱或關鍵字..." 
+                    <input type="text" id="news-search" placeholder="搜尋代號、名稱或關鍵字..." 
                         class="w-full bg-white border-2 border-[#4A6C88] pl-10 pr-4 py-3 rounded shadow-sm focus:outline-none font-serif text-lg">
                     <div class="absolute left-3 top-4 text-[#4A6C88]">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
                 </div>
-                <button onclick="handleSearch()" class="bg-[#4A6C88] text-white px-6 py-3 rounded font-serif hover:bg-[#34495e] transition-colors shadow-md">
-                    搜尋
-                </button>
+                <button onclick="handleSearch()" class="bg-[#4A6C88] text-white px-6 py-3 rounded font-serif hover:bg-[#34495e] transition-colors shadow-md">搜尋</button>
             </div>
             <div class="mt-4 text-center">
-                <button onclick="init(true)" class="text-xs font-serif text-[#4A6C88] border border-[#4A6C88] px-6 py-2 hover:bg-[#4A6C88] hover:text-white transition-all shadow-sm">
-                    ↺ 同步最新數據
-                </button>
+                <button onclick="init(true)" class="text-xs font-serif text-[#4A6C88] border border-[#4A6C88] px-6 py-2 hover:bg-[#4A6C88] hover:text-white transition-all shadow-sm">↺ 同步最新數據</button>
             </div>
         </div>
 
@@ -50,8 +46,8 @@
             <button onclick="filterByCategory('能源')" class="btn-filter">重電能源</button>
         </div>
 
-        <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="col-span-full text-center py-20 font-serif">數據整理中...</div>
+        <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="text-center col-span-full text-gray-400">報導加載中...</p>
         </div>
     </div>
     <script src="script.js"></script>
