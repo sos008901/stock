@@ -1,24 +1,20 @@
 let allNewsData = [];
 
 async function init(isManual = false) {
-    const container = document.getElementById('news-container');
-    if(isManual) container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">同步中...</div>';
-
     try {
-        // 使用 Date.now() 徹底避開瀏覽器緩存
         const response = await fetch(`./news_data.json?t=${Date.now()}`);
         allNewsData = await response.json();
         renderNews(allNewsData);
-        if(isManual) alert("同步成功！日期已更新。");
+        if(isManual) alert("同步成功！");
     } catch (e) {
-        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">無法加載數據。</div>';
+        console.error(e);
     }
 }
 
 function renderNews(list) {
     const container = document.getElementById('news-container');
     if (!list || list.length === 0) {
-        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">無符合資料。</div>';
+        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">查無相符資料。</div>';
         return;
     }
 
@@ -37,12 +33,9 @@ function renderNews(list) {
     `).join('');
 }
 
-// 搜尋連動
 document.getElementById('news-search').addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
-    const filtered = allNewsData.filter(n => 
-        n.title.toLowerCase().includes(term) || n.category.toLowerCase().includes(term)
-    );
+    const filtered = allNewsData.filter(n => n.title.toLowerCase().includes(term));
     renderNews(filtered);
 });
 
@@ -52,12 +45,13 @@ function filterByRegion(r) {
 }
 
 function filterByCategory(c) {
-    updateBtn(c);
+    const label = c === '總經/其他' ? '其他' : c;
+    updateBtn(label);
     renderNews(allNewsData.filter(n => n.category === c));
 }
 
 function updateBtn(label) {
-    document.querySelectorAll('.btn-filter').forEach(b => b.classList.toggle('active', b.innerText === label));
+    document.querySelectorAll('.btn-filter').forEach(b => b.classList.toggle('active', b.innerText.includes(label)));
 }
 
 init();
