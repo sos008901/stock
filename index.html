@@ -3,50 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>股市速報｜和風版</title>
+    <title>股市速報｜和風極致版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body class="p-4 md:p-12">
     <div class="max-w-6xl mx-auto">
         <header class="text-center mb-6">
-            <p class="text-[#7f8c8d] text-sm mb-1 tracking-[0.3em] font-serif uppercase">Daily Market Review</p>
-            <h1 class="text-4xl font-bold tracking-wider text-[#2c3e50] font-serif">每日財經・產業速報</h1>
+            <p class="text-[#7f8c8d] text-sm mb-1 tracking-[0.3em] font-serif uppercase">Hourly Market Update</p>
+            <h1 class="text-4xl font-bold tracking-wider text-[#2c3e50] font-serif">股市精選新聞</h1>
             <div class="w-12 h-[1px] bg-[#4A6C88] mx-auto mt-4"></div>
         </header>
 
-        <div class="max-w-xl mx-auto mb-10">
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-[#4A6C88]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+        <div class="max-w-xl mx-auto mb-10 text-center">
+            <div class="relative mb-4">
+                <input type="text" id="news-search" placeholder="輸入關鍵字..." 
+                    class="w-full bg-white border-2 border-[#4A6C88] pl-10 pr-4 py-3 rounded-md focus:outline-none font-serif text-lg">
+                <div class="absolute left-3 top-4 text-[#4A6C88]">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
-                <input type="text" id="news-search" placeholder="請輸入公司名或關鍵字搜尋..." 
-                    class="w-full bg-white border-2 border-[#4A6C88] pl-12 pr-4 py-3 rounded-md focus:ring-2 focus:ring-[#4A6C88]/20 focus:outline-none font-serif text-lg shadow-sm">
             </div>
+            <button onclick="init(true)" class="text-xs font-serif text-[#4A6C88] border border-[#4A6C88] px-4 py-1 hover:bg-[#4A6C88] hover:text-white transition-all">
+                手動同步最新數據
+            </button>
         </div>
 
         <div class="flex flex-wrap gap-2 justify-center mb-10" id="filter-buttons">
-            <div class="flex gap-2 mr-2 border-r border-[#e6e2d8] pr-4">
-                <button onclick="filterByRegion('全部')" class="btn-filter active">全部</button>
-                <button onclick="filterByRegion('國內')" class="btn-filter">國內</button>
-                <button onclick="filterByRegion('國際')" class="btn-filter">國際</button>
-            </div>
-            <button onclick="filterByCategory('金融')" class="btn-filter">金融市場</button>
+            <button onclick="filterByRegion('全部')" class="btn-filter active">全部</button>
+            <button onclick="filterByRegion('國內')" class="btn-filter">國內</button>
+            <button onclick="filterByRegion('國際')" class="btn-filter">國際</button>
+            <div class="w-full h-0 md:w-auto md:h-6 border-r border-[#e6e2d8] mx-2 hidden md:block"></div>
+            <button onclick="filterByCategory('金融')" class="btn-filter">金融</button>
             <button onclick="filterByCategory('半導體')" class="btn-filter">半導體</button>
             <button onclick="filterByCategory('科技AI')" class="btn-filter">科技AI</button>
             <button onclick="filterByCategory('航運')" class="btn-filter">航運</button>
             <button onclick="filterByCategory('傳產')" class="btn-filter">傳產</button>
             <button onclick="filterByCategory('能源')" class="btn-filter">能源</button>
-            <button onclick="filterByCategory('總經/其他')" class="btn-filter">其他</button>
         </div>
 
         <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="col-span-full text-center py-20 text-[#7f8c8d] font-serif animate-pulse">正在整理本刊報導...</div>
+            <div class="col-span-full text-center py-20 font-serif">載入中...</div>
         </div>
     </div>
     <script src="script.js"></script>
