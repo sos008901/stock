@@ -5,19 +5,19 @@ import requests
 import time
 from datetime import datetime, timedelta
 
-# 利用搜尋語法強制區隔來源，並排除不相關字眼
+# 強制區隔地區，並排除不相關關鍵字
 SOURCES = {
-    "國內": "https://news.google.com/rss/search?q=台股+股市+OR+台灣產業+-美股+-Nasdaq+-美債&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
-    "國際": "https://news.google.com/rss/search?q=美股+財經+Fed+OR+國際經濟+-台股+-中研院&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
+    "國內": "https://news.google.com/rss/search?q=台股+股市+OR+台灣產業+-美股+-Nasdaq&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+    "國際": "https://news.google.com/rss/search?q=美股+財經+Fed+OR+國際經濟+-台股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
 }
 
 CATEGORY_MAP = {
-    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "NVDA", "Intel", "光罩"],
-    "科技AI": ["AI", "輝達", "NVIDIA", "伺服器", "蘋果", "硬碟", "低軌衛星", "微軟", "鴻海", "ChatGPT"],
-    "航運": ["長榮", "陽明", "萬海", "航運", "貨櫃", "散裝", "SCFI", "運價"],
-    "金融": ["升息", "降息", "銀行", "金控", "壽險", "聯準會", "Fed", "通膨", "央行", "金管會", "數位金融"],
-    "傳產": ["鋼鐵", "水泥", "塑膠", "紡織", "營建", "塑化", "中鋼", "房貸"],
-    "能源": ["電力", "綠能", "儲能", "重電", "氫能", "太陽能", "風電"]
+    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "NVDA", "Intel"],
+    "科技AI": ["AI", "輝達", "NVIDIA", "伺服器", "蘋果", "硬碟", "低軌衛星", "微軟", "鴻海"],
+    "航運": ["長榮", "陽明", "萬海", "航運", "貨櫃", "散裝", "運價"],
+    "金融": ["升息", "降息", "銀行", "金控", "壽險", "聯準會", "Fed", "通膨", "央行", "金管會"],
+    "傳產": ["鋼鐵", "水泥", "塑膠", "紡織", "營建", "房貸"],
+    "能源": ["電力", "綠能", "儲能", "重電", "氫能", "光電"]
 }
 
 def get_category(title):
@@ -48,12 +48,17 @@ def run_crawler():
                 if entry.title not in existing_titles:
                     clean_title = entry.title.split(' - ')[0]
                     
-                    # 修正日期：抓取新聞原始發佈時間
+                    # --- 關鍵修正：精準抓取原始發布時間 ---
+                    # Google News RSS 通常提供 published_parsed (struct_time)
                     if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                        # 將 struct_time 轉換為 datetime
                         dt = datetime.fromtimestamp(time.mktime(entry.published_parsed))
+                        # 轉換為台灣時間 (Google RSS 通常是 UTC，這裡簡單加 8 小時或維持格式)
+                        # 為避免時區錯亂，我們直接存成標準 ISO 格式
                         pub_date = dt.strftime("%Y-%m-%d %H:%M")
                     else:
-                        pub_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+                        # 備援方案：嘗試解析字串格式
+                        pub_date = entry.get('published', datetime.now().strftime("%Y-%m-%d %H:%M"))
 
                     new_items.append({
                         "title": clean_title,
@@ -68,10 +73,10 @@ def run_crawler():
 
     if new_items or all_news:
         all_news.extend(new_items)
-        # 僅保留最近 30 天新聞
+        # 僅保留最近 30 天
         limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         all_news = [n for n in all_news if n.get('date', '') >= limit_date]
-        # 按日期排序
+        # 依照新聞發布時間排序 (最關鍵)
         all_news.sort(key=lambda x: x['date'], reverse=True)
         
         with open(file_path, 'w', encoding='utf-8') as f:
