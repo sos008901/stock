@@ -4,9 +4,10 @@ import os
 from datetime import datetime, timedelta
 
 # 新聞來源 RSS
+# 修改後的 SOURCES
 SOURCES = {
-    "國內": "https://news.cnyes.com/rss/category/tw_stock",
-    "國際": "https://news.cnyes.com/rss/category/intl_stock"
+    "國內": "https://tw.stock.yahoo.com/rss/tw-stock", # Yahoo 股市
+    "國際": "https://tw.stock.yahoo.com/rss/intl-stock" # Yahoo 國際財經
 }
 
 # 關鍵字分類邏輯
