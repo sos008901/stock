@@ -66,7 +66,7 @@ def run_crawler():
 
     all_news.extend(new_items)
     # 保留 30 天資料並依照日期排序
-    limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    limit_date = (datetime.now() - timedelta(days=10)).strftime("%Y-%m-%d")
     all_news = [n for n in all_news if n.get('date', '') >= limit_date]
     all_news.sort(key=lambda x: x['date'], reverse=True)
     with open(file_path, 'w', encoding='utf-8') as f:
