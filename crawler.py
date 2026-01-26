@@ -2,11 +2,12 @@ import feedparser
 import json
 import os
 import requests
+import time
 from datetime import datetime, timedelta
 
-# 利用搜尋語法強制區隔來源
+# 利用搜尋語法強制區隔來源，並排除不相關字眼
 SOURCES = {
-    "國內": "https://news.google.com/rss/search?q=台股+股市+OR+台灣產業+-美股+-Nasdaq&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+    "國內": "https://news.google.com/rss/search?q=台股+股市+OR+台灣產業+-美股+-Nasdaq+-美債&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
     "國際": "https://news.google.com/rss/search?q=美股+財經+Fed+OR+國際經濟+-台股+-中研院&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
 }
 
@@ -42,28 +43,39 @@ def run_crawler():
         try:
             response = requests.get(url, headers=headers, timeout=20)
             feed = feedparser.parse(response.content)
+            
             for entry in feed.entries:
                 if entry.title not in existing_titles:
                     clean_title = entry.title.split(' - ')[0]
+                    
+                    # 修正日期：抓取新聞原始發佈時間
+                    if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                        dt = datetime.fromtimestamp(time.mktime(entry.published_parsed))
+                        pub_date = dt.strftime("%Y-%m-%d %H:%M")
+                    else:
+                        pub_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+
                     new_items.append({
                         "title": clean_title,
                         "link": entry.link,
                         "region": region,
                         "category": get_category(clean_title),
-                        "date": datetime.now().strftime("%Y-%m-%d %H:%M")
+                        "date": pub_date
                     })
                     existing_titles.add(entry.title)
         except Exception as e:
             print(f"抓取 {region} 失敗: {e}")
 
-    # 合併並保留 30 天資料
-    all_news.extend(new_items)
-    limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-    all_news = [n for n in all_news if n.get('date', '') >= limit_date]
-    all_news.sort(key=lambda x: x['date'], reverse=True)
-    
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(all_news, f, ensure_ascii=False, indent=2)
+    if new_items or all_news:
+        all_news.extend(new_items)
+        # 僅保留最近 30 天新聞
+        limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+        all_news = [n for n in all_news if n.get('date', '') >= limit_date]
+        # 按日期排序
+        all_news.sort(key=lambda x: x['date'], reverse=True)
+        
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(all_news, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
     run_crawler()
