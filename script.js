@@ -2,8 +2,7 @@ let allNewsData = [];
 
 // 動態時鐘
 setInterval(() => {
-    const now = new Date();
-    document.getElementById('live-clock').innerText = now.toLocaleString('zh-TW', { hour12: false });
+    document.getElementById('live-clock').innerText = new Date().toLocaleString('zh-TW', { hour12: false });
 }, 1000);
 
 async function init(isManual = false) {
@@ -11,21 +10,20 @@ async function init(isManual = false) {
         const response = await fetch(`./news_data.json?t=${Date.now()}`);
         allNewsData = await response.json();
         renderNews(allNewsData);
-        if(isManual) alert("同步成功！日期已更新。");
+        if(isManual) alert("同步成功！");
     } catch (e) { console.error(e); }
 }
 
 function renderNews(list) {
     const container = document.getElementById('news-container');
     if (!list || list.length === 0) {
-        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif text-[#7f8c8d]">查無相符資料。</div>';
+        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">查無相符資料。</div>';
         return;
     }
-
     const now = new Date();
-
     container.innerHTML = list.map(n => {
-        const newsTime = new Date(n.date.replace(/-/g, '/')); // 修正 JS 日期解析相容性
+        // 修正日期解析相容性並計算分鐘差
+        const newsTime = new Date(n.date.replace(/-/g, '/'));
         const diffMinutes = (now - newsTime) / (1000 * 60);
         const isNew = diffMinutes <= 30 && diffMinutes >= 0;
 
@@ -36,7 +34,7 @@ function renderNews(list) {
                         <span class="category-tag">${n.category}</span>
                         ${isNew ? '<span class="bg-[#e74c3c] text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse">即時</span>' : ''}
                     </div>
-                    <span class="text-[#7f8c8d] text-[11px] font-medium">${n.date.split(' ')[1]}</span>
+                    <span class="text-[#7f8c8d] text-[11px] font-medium">${n.date.replace(/-/g, '.')}</span>
                 </div>
                 <h3 class="${isNew ? 'text-[#e74c3c]' : ''}">${n.title}</h3>
                 <div class="news-card-footer">
@@ -48,35 +46,22 @@ function renderNews(list) {
     }).join('');
 }
 
-// 即時速報：只過濾 30 分鐘內的新聞
 function filterByRealTime() {
     updateBtn('即時速報 (30m)');
     const now = new Date();
-    const filtered = allNewsData.filter(n => {
-        const newsTime = new Date(n.date.replace(/-/g, '/'));
-        const diff = (now - newsTime) / (1000 * 60);
+    renderNews(allNewsData.filter(n => {
+        const diff = (now - new Date(n.date.replace(/-/g, '/'))) / (1000 * 60);
         return diff <= 30 && diff >= 0;
-    });
-    renderNews(filtered);
+    }));
 }
 
-function filterByRegion(r) {
-    updateBtn(r);
-    renderNews(r === '全部' ? allNewsData : allNewsData.filter(n => n.region === r));
-}
-
-function filterByCategory(c) {
-    updateBtn(c);
-    renderNews(allNewsData.filter(n => n.category === c));
-}
-
-function updateBtn(label) {
-    document.querySelectorAll('.btn-filter').forEach(b => b.classList.toggle('active', b.innerText === label));
-}
+function filterByRegion(r) { updateBtn(r); renderNews(r === '全部' ? allNewsData : allNewsData.filter(n => n.region === r)); }
+function filterByCategory(c) { updateBtn(c); renderNews(allNewsData.filter(n => n.category === c)); }
+function updateBtn(label) { document.querySelectorAll('.btn-filter').forEach(b => b.classList.toggle('active', b.innerText.includes(label))); }
 
 document.getElementById('news-search').addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
-    renderNews(allNewsData.filter(n => n.title.toLowerCase().includes(term)));
+    renderNews(allNewsData.filter(n => n.title.toLowerCase().includes(term) || n.category.toLowerCase().includes(term)));
 });
 
 init();
