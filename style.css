@@ -1,126 +1,21 @@
-/* 日式高級風格配色與字體 */
-:root {
-    --bg-color: #f4f1ea;        /* 和紙米色背景 */
-    --card-bg: #ffffff;         /* 純白卡片 */
-    --text-primary: #2c3e50;    /* 深靛藍文字 */
-    --text-secondary: #7f8c8d;  /* 亞麻灰 */
-    --accent-indigo: #4A6C88;   /* 傳統藍染 */
-    --accent-bamboo: #7C9473;   /* 若竹綠 */
-    --border-color: #e6e2d8;    /* 細緻邊框 */
-    
-    --font-serif: 'Noto Serif JP', 'Noto Serif TC', serif;
-    --font-sans: 'Noto Sans JP', 'Noto Sans TC', sans-serif;
-}
-
-body {
-    font-family: var(--font-sans);
-    background-color: var(--bg-color) !important;
-    color: var(--text-primary) !important;
-    margin: 0;
-    line-height: 1.6;
-}
-
-/* 標題區域 */
-h1, h2, h3, .font-serif {
-    font-family: var(--font-serif);
-}
-
-/* 導覽按鈕 - 極簡和風 */
-.btn-filter {
-    padding: 0.6rem 1.2rem;
-    border: 1px solid var(--border-color);
-    background-color: transparent;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    letter-spacing: 0.05em;
-    transition: all 0.3s ease;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.btn-filter:hover {
-    border-color: var(--accent-indigo);
-    color: var(--accent-indigo);
-    background-color: rgba(74, 108, 136, 0.05);
-}
-
-.btn-filter.active {
-    background-color: var(--accent-indigo);
-    color: white;
-    border-color: var(--accent-indigo);
-}
-
-/* 新聞卡片 - 質感重塑 */
-.news-card {
-    background-color: var(--card-bg);
-    border-radius: 4px;
-    padding: 1.5rem;
-    border: 1px solid var(--border-color);
-    transition: all 0.4s ease;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-.news-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-}
-
-/* 卡片上方裝飾線 */
-.news-card::before {
+/* 延續之前的日式風格，新增地區標籤裝飾 */
+.region-tag::before {
     content: '';
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 3px;
-    background-color: var(--border-color);
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 8px;
 }
-
-.category-tag {
-    font-size: 0.75rem;
-    padding: 3px 10px;
-    border-radius: 20px;
-    background-color: #f0f4f8;
-    color: var(--accent-indigo);
-    font-weight: 600;
-}
-
-.date-text {
-    color: var(--text-secondary);
-    font-size: 0.8rem;
-}
+.region-domestic::before { background-color: var(--accent-bamboo); } /* 國內用竹綠 */
+.region-international::before { background-color: #9e8c6c; } /* 國際用枯茶色 */
 
 .news-card h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 1rem 0 1.5rem 0;
-    color: var(--text-primary);
+    /* 限制標題高度，避免長短不一 */
+    height: 3.6em;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    margin-bottom: 1rem;
 }
-
-/* 卡片底部 */
-.news-card-footer {
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px dotted var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.region-tag {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-}
-
-.read-link {
-    text-decoration: none;
-    color: var(--accent-indigo);
-    font-size: 0.9rem;
-    font-weight: 600;
-    font-family: var(--font-serif);
-}
-
-.no-scrollbar::-webkit-scrollbar { display: none; }
