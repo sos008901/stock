@@ -1,20 +1,24 @@
 let allNewsData = [];
 
 async function init(isManual = false) {
+    const container = document.getElementById('news-container');
+    if(isManual) container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">同步中...</div>';
+
     try {
+        // 使用 Date.now() 徹底避開瀏覽器緩存
         const response = await fetch(`./news_data.json?t=${Date.now()}`);
         allNewsData = await response.json();
         renderNews(allNewsData);
-        if(isManual) alert("已獲取伺服器最新資料");
+        if(isManual) alert("同步成功！日期已更新。");
     } catch (e) {
-        console.error(e);
+        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">無法加載數據。</div>';
     }
 }
 
 function renderNews(list) {
     const container = document.getElementById('news-container');
     if (!list || list.length === 0) {
-        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">目前沒有相符的報導。</div>';
+        container.innerHTML = '<div class="col-span-full text-center py-20 font-serif">無符合資料。</div>';
         return;
     }
 
@@ -22,12 +26,12 @@ function renderNews(list) {
         <div class="news-card">
             <div class="flex justify-between items-start mb-4">
                 <span class="category-tag">${n.category}</span>
-                <span class="text-[#7f8c8d] text-[11px] font-medium tracking-tight">${n.date.replace(/-/g, '.')}</span>
+                <span class="text-[#7f8c8d] text-[11px] font-medium">${n.date.replace(/-/g, '.')}</span>
             </div>
             <h3>${n.title}</h3>
             <div class="news-card-footer">
                 <span class="text-xs ${n.region === '國內' ? 'region-domestic' : 'region-international'} region-tag">${n.region}</span>
-                <a href="${n.link}" target="_blank" class="read-link">全文閱覽 →</a>
+                <a href="${n.link}" target="_blank" class="read-link">閱覽全文 →</a>
             </div>
         </div>
     `).join('');
@@ -36,7 +40,9 @@ function renderNews(list) {
 // 搜尋連動
 document.getElementById('news-search').addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
-    const filtered = allNewsData.filter(n => n.title.toLowerCase().includes(term));
+    const filtered = allNewsData.filter(n => 
+        n.title.toLowerCase().includes(term) || n.category.toLowerCase().includes(term)
+    );
     renderNews(filtered);
 });
 
