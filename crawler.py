@@ -4,20 +4,19 @@ import os
 import requests
 from datetime import datetime, timedelta
 
-# 優化搜尋語法，減少國內外內容交叉
+# 利用搜尋語法強制區隔來源
 SOURCES = {
     "國內": "https://news.google.com/rss/search?q=台股+股市+OR+台灣產業+-美股+-Nasdaq&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
     "國際": "https://news.google.com/rss/search?q=美股+財經+Fed+OR+國際經濟+-台股+-中研院&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
 }
 
-# 根據你的專業背景與興趣細分產業
 CATEGORY_MAP = {
-    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "NVDA", "Intel", "設備"],
-    "科技AI": ["AI", "輝達", "NVIDIA", "伺服器", "蘋果", "硬碟", "低軌衛星", "微軟", "鴻海", "軟體"],
-    "航運": ["長榮", "陽明", "萬海", "航運", "貨櫃", "散裝", "波羅的海"],
-    "金融": ["升息", "降息", "銀行", "金控", "壽險", "聯準會", "Fed", "通膨", "央行", "金管會", "授信"],
-    "傳產": ["鋼鐵", "水泥", "塑膠", "紡織", "營建", "塑化", "中鋼", "房產"],
-    "能源": ["電力", "綠能", "儲能", "重電", "氫能", "光電", "核能"]
+    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "NVDA", "Intel", "光罩"],
+    "科技AI": ["AI", "輝達", "NVIDIA", "伺服器", "蘋果", "硬碟", "低軌衛星", "微軟", "鴻海", "ChatGPT"],
+    "航運": ["長榮", "陽明", "萬海", "航運", "貨櫃", "散裝", "SCFI", "運價"],
+    "金融": ["升息", "降息", "銀行", "金控", "壽險", "聯準會", "Fed", "通膨", "央行", "金管會", "數位金融"],
+    "傳產": ["鋼鐵", "水泥", "塑膠", "紡織", "營建", "塑化", "中鋼", "房貸"],
+    "能源": ["電力", "綠能", "儲能", "重電", "氫能", "太陽能", "風電"]
 }
 
 def get_category(title):
@@ -43,8 +42,6 @@ def run_crawler():
         try:
             response = requests.get(url, headers=headers, timeout=20)
             feed = feedparser.parse(response.content)
-            print(f"[{region}] 找到 {len(feed.entries)} 則原始訊息")
-            
             for entry in feed.entries:
                 if entry.title not in existing_titles:
                     clean_title = entry.title.split(' - ')[0]
@@ -59,15 +56,14 @@ def run_crawler():
         except Exception as e:
             print(f"抓取 {region} 失敗: {e}")
 
-    if new_items or all_news:
-        all_news.extend(new_items)
-        limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-        all_news = [n for n in all_news if n.get('date', '') >= limit_date]
-        all_news.sort(key=lambda x: x['date'], reverse=True)
-        
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(all_news, f, ensure_ascii=False, indent=2)
-        print(f"更新完成，總計 {len(all_news)} 筆。")
+    # 合併並保留 30 天資料
+    all_news.extend(new_items)
+    limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    all_news = [n for n in all_news if n.get('date', '') >= limit_date]
+    all_news.sort(key=lambda x: x['date'], reverse=True)
+    
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(all_news, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
     run_crawler()
