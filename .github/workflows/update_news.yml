@@ -2,9 +2,9 @@ name: Update Stock News
 
 on:
   schedule:
-    # 設定每 4 小時自動執行一次 (UTC 時間)
+    # 每 4 小時跑一次
     - cron: '0 */4 * * *'
-  workflow_dispatch: # 讓你可以手動點擊按鈕觸發
+  workflow_dispatch: # 讓你可以隨時手動點按鈕執行
 
 permissions:
   contents: write
@@ -22,18 +22,18 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: 安裝套件
+    - name: 安裝必要套件
       run: |
         python -m pip install --upgrade pip
-        pip install feedparser
+        pip install feedparser requests
 
-    - name: 執行爬蟲
+    - name: 執行爬蟲腳本
       run: python crawler.py
 
-    - name: 提交並推送更新後的資料
+    - name: 提交更新到 GitHub 倉庫
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add news_data.json
-        git commit -m "Auto update news: $(date)" || exit 0
+        git commit -m "Auto-updated news at $(date)" || exit 0
         git push
