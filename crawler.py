@@ -5,19 +5,23 @@ import requests
 import time
 from datetime import datetime, timedelta, timezone
 
-# 嚴格區隔搜尋範圍
+# 搜尋語法強化
 SOURCES = {
     "國內": "https://news.google.com/rss/search?q=台股+股市+OR+台灣產業+-美股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
     "國際": "https://news.google.com/rss/search?q=美股+財經+Fed+OR+國際經濟+-台股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
 }
 
+# 大幅擴充的產業地圖
 CATEGORY_MAP = {
-    "金融": ["銀行", "金控", "升息", "降息", "聯準會", "Fed", "央行", "金管會", "授信", "房貸"],
-    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "NVDA", "Intel"],
-    "科技AI": ["AI", "輝達", "NVIDIA", "伺服器", "蘋果", "硬碟", "低軌衛星", "微軟", "鴻海"],
-    "航運": ["長榮", "陽明", "萬海", "航運", "貨櫃", "散裝"],
-    "傳產": ["鋼鐵", "水泥", "塑膠", "紡織", "營建", "塑化"],
-    "能源": ["電力", "綠能", "儲能", "重電", "氫能", "光電"]
+    "金融實務": ["銀行", "金控", "升息", "降息", "聯準會", "Fed", "央行", "金管會", "授信", "房貸", "外匯", "債券", "票券", "Fintech", "數位轉型"],
+    "半導體": ["台積電", "聯電", "晶圓", "封測", "IC設計", "ASML", "NVDA", "Intel", "光罩", "先進封裝"],
+    "AI/伺服器": ["AI", "輝達", "NVIDIA", "伺服器", "廣達", "緯創", "技嘉", "微軟", "ChatGPT", "散熱"],
+    "硬體/零組件": ["硬碟", "存儲", "記憶體", "主機板", "顯示卡", "電腦", "硬體", "Bluetooth", "藍牙", "電源供應器"],
+    "車用/衛星": ["電動車", "特斯拉", "Tesla", "車用電子", "低軌衛星", "SpaceX", "鴻海", "MIH"],
+    "航運/物流": ["長榮", "陽明", "萬海", "航運", "貨櫃", "散裝", "運價", "SCFI", "紅海"],
+    "傳統產業": ["鋼鐵", "水泥", "塑膠", "紡織", "營建", "塑化", "中鋼", "房市"],
+    "能源/重電": ["電力", "綠能", "儲能", "重電", "氫能", "太陽能", "風電", "華城", "士電"],
+    "生技醫療": ["新藥", "疫苗", "醫美", "生技", "CDMO", "醫療器材"]
 }
 
 def get_category(title):
@@ -30,13 +34,10 @@ def run_crawler():
     file_path = 'news_data.json'
     all_news = []
     
-    # 讀取現有資料
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
-            try:
-                all_news = json.load(f)
-            except:
-                all_news = []
+            try: all_news = json.load(f)
+            except: all_news = []
 
     existing_titles = {item['title'] for item in all_news}
     new_items = []
@@ -50,9 +51,8 @@ def run_crawler():
                 if entry.title not in existing_titles:
                     clean_title = entry.title.split(' - ')[0]
                     
-                    # --- 抓取新聞原始發佈時間並轉為台灣時間 ---
+                    # 抓取原始發布時間 (UTC) 轉為台灣時間 (UTC+8)
                     if hasattr(entry, 'published_parsed') and entry.published_parsed:
-                        # 將 RSS 的 UTC 時間轉為台灣時間 (UTC+8)
                         dt_utc = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
                         dt_tw = dt_utc.astimezone(timezone(timedelta(hours=8)))
                         pub_date = dt_tw.strftime("%Y-%m-%d %H:%M")
@@ -70,9 +70,8 @@ def run_crawler():
         except Exception as e:
             print(f"抓取 {region} 失敗: {e}")
 
-    # 合併新舊資料
     all_news.extend(new_items)
-    # 保留最近 30 天並按照發佈時間排序
+    # 保留 30 天並排序
     limit_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
     all_news = [n for n in all_news if n.get('date', '') >= limit_date]
     all_news.sort(key=lambda x: x['date'], reverse=True)
