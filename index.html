@@ -12,25 +12,25 @@
 </head>
 <body class="p-4 md:p-12">
     <div class="max-w-6xl mx-auto">
-        <header class="text-center mb-8">
-            <p class="text-[#7f8c8d] text-sm mb-2 tracking-[0.3em] font-serif uppercase">Daily Market Review</p>
+        <header class="text-center mb-6">
+            <p class="text-[#7f8c8d] text-sm mb-1 tracking-[0.3em] font-serif uppercase">Daily Market Review</p>
             <h1 class="text-4xl font-bold tracking-wider text-[#2c3e50] font-serif">每日財經・產業速報</h1>
-            <div class="w-12 h-[1px] bg-[#4A6C88] mx-auto mt-6"></div>
+            <div class="w-12 h-[1px] bg-[#4A6C88] mx-auto mt-4"></div>
         </header>
 
-        <div class="max-w-xl mx-auto mb-12">
-            <div class="relative group">
+        <div class="max-w-xl mx-auto mb-10">
+            <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-[#4A6C88]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                <input type="text" id="news-search" placeholder="輸入關鍵字、公司名或產業（如：台積電、金融）..." 
-                    class="w-full bg-white border-2 border-[#e6e2d8] pl-12 pr-4 py-4 rounded-lg focus:outline-none focus:border-[#4A6C88] transition-all font-serif shadow-sm">
+                <input type="text" id="news-search" placeholder="請輸入公司名或關鍵字搜尋..." 
+                    class="w-full bg-white border-2 border-[#4A6C88] pl-12 pr-4 py-3 rounded-md focus:ring-2 focus:ring-[#4A6C88]/20 focus:outline-none font-serif text-lg shadow-sm">
             </div>
         </div>
 
-        <div class="flex flex-wrap gap-3 justify-center mb-12" id="filter-buttons">
+        <div class="flex flex-wrap gap-2 justify-center mb-10" id="filter-buttons">
             <div class="flex gap-2 mr-2 border-r border-[#e6e2d8] pr-4">
                 <button onclick="filterByRegion('全部')" class="btn-filter active">全部</button>
                 <button onclick="filterByRegion('國內')" class="btn-filter">國內</button>
@@ -45,8 +45,8 @@
             <button onclick="filterByCategory('總經/其他')" class="btn-filter">其他</button>
         </div>
 
-        <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="col-span-full text-center py-20 text-[#7f8c8d] font-serif">正在加載報導...</div>
+        <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full text-center py-20 text-[#7f8c8d] font-serif animate-pulse">正在整理本刊報導...</div>
         </div>
     </div>
     <script src="script.js"></script>
